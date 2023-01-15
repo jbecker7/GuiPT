@@ -1,34 +1,45 @@
-# Import the necessary libraries
 import openai
 import re
-import PySimpleGUI as sg
+import tkinter as tk
+from PIL import Image, ImageTk
 
-openai.api_key = "key"
-
+openai.api_key = "sk-key"
 
 def chatbot_gui():
-    layout = [  
-    [sg.Text("Enter your message: ", font=("Helvetica", 14)), sg.InputText(font=("Helvetica", 14)), sg.Stretch()],
-    [sg.Button("Send", font=("Helvetica", 14)), sg.Button("Exit", font=("Helvetica", 14)), sg.Stretch()],
-    [sg.Text("Response: ", font=("Helvetica", 14)), sg.Text("", key="response", font=("Helvetica", 14)), sg.Stretch()]
-]
+    root = tk.Tk()
+    root.title("GuiPT")
+
+    # Open the image file and create a PhotoImage object
+    img = Image.open("miku.jpg")
+    img = img.resize((300, 300), Image.ANTIALIAS)
+    img = ImageTk.PhotoImage(img)
+
+    title_label = tk.Label(root, text="GuiPT", font=("Helvetica", 30))
+    title_label.pack()
+
+    # Create a label widget and set the image attribute
+    img_label = tk.Label(root, image=img)
+    img_label.pack()
 
 
+    input_label = tk.Label(root, text="Enter your question:", font=("Helvetica", 24))
+    input_label.pack()
+    user_input_var = tk.StringVar()
+    user_input = tk.Entry(root, font=("Helvetica", 24))
+    user_input.pack()
+    user_input.bind("<Return>", lambda event: generate_response(user_input.get()))
 
-    window = sg.Window("GuiPT", layout, auto_size_text=True, default_element_size=(40, 2))
+    send_button = tk.Button(root, text="Send", font=("Helvetica", 24), command=lambda: generate_response(user_input.get()))
+    send_button.pack()
+    exit_button = tk.Button(root, text="Exit", font=("Helvetica", 24), command=root.destroy)
+    exit_button.pack()
 
-    while True:
-        event, values = window.read()
-
-        if event in (sg.WIN_CLOSED, "Exit"):
-            break
-
-        if event == "Send":
-            user_input = values[0]
-            response = generate_response(user_input)
-            window["response"].update(response)
-
-    window.close()
+    response_label = tk.Label(root, text="Response:", font=("Helvetica", 24))
+    response_label.pack()
+    global response_text
+    response_text = tk.Label(root, font=("Helvetica", 24))
+    response_text.pack()
+    root.mainloop()
 
 def generate_response(prompt):
     completions = openai.Completion.create(
@@ -41,7 +52,7 @@ def generate_response(prompt):
     )
 
     message = completions.choices[0].text
-    return message.strip()
-
+    response_text.config(text=message.strip())
+  
 if __name__ == "__main__":
     chatbot_gui()
