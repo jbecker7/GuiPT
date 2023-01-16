@@ -3,7 +3,7 @@ import re
 import tkinter as tk
 from PIL import Image, ImageTk
 
-openai.api_key = "sk-key"
+openai.api_key = "key"
 
 def chatbot_gui():
     root = tk.Tk()
